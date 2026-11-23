@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Mañana</title>
+    <title>Reporte Diario - Air-e</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
                 <button class="btn btn-danger" type="button" onclick="limpiarTodo()">Limpiar Todo</button>
             </div>
         </header>
-
+ 
         <!-- 1. ARRIBA: SOLO PEGAR DATOS DEL SISTEMA -->
         <section class="panel">
             <div class="panel-header">
@@ -30,7 +30,7 @@
                 <button class="btn btn-outline" type="button" onclick="limpiarCajaEntrada()">Solo Limpiar Caja</button>
             </div>
         </section>
-
+ 
         <!-- 2. EN MEDIO: RESULTADO DE DESFASES Y ESTADOS -->
         <section class="panel table-panel">
             <div class="panel-header">
@@ -39,7 +39,7 @@
                     Copiar Columnas Calculadas para Excel
                 </button>
             </div>
-
+ 
             <div class="filtros-bar" aria-label="Filtros rápidos de resultados">
                 <span class="filtros-label">Filtrar:</span>
                 <button class="chip active" type="button" data-filtro="todos" onclick="toggleFiltro('todos')">Todos</button>
@@ -58,18 +58,18 @@
                 </select>
                 <button class="btn btn-outline btn-sm" type="button" onclick="limpiarFiltros()">Limpiar filtros</button>
             </div>
-
+ 
             <div class="busqueda-lote">
                 <input
                     id="filtroCodigos"
                     type="text"
                     class="input-filtro"
-                    placeholder="Buscar o pegar varios Device ID, Account No o IP (ej. Frt07239, Frt24265, 10168630)..."
+                    placeholder="Buscar o pegar varios Device ID, Account No, IP o Phone..."
                     oninput="aplicarFiltrosYOrden()"
                 >
                 <button class="btn btn-outline btn-sm" type="button" onclick="limpiarFiltroCodigos()">Borrar búsqueda</button>
             </div>
-
+ 
             <div class="table-wrap">
                 <table id="tablaCalculos">
                     <thead>
@@ -83,19 +83,20 @@
                             <th class="sortable" data-sort="original" onclick="ordenarPor('original')">Fecha/Hora Original <span class="sort-indicator"></span></th>
                             <th class="sortable" data-sort="corregida" onclick="ordenarPor('corregida')">Fecha/Hora Corregida <span class="sort-indicator"></span></th>
                             <th class="sortable" data-sort="ip" onclick="ordenarPor('ip')">IP <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="phone" onclick="ordenarPor('phone')">Phone <span class="sort-indicator"></span></th>
                             <th class="sortable" data-sort="anomalia" onclick="ordenarPor('anomalia')">Anomalía <span class="sort-indicator"></span></th>
                             <th>Acción</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td colspan="11" class="empty-msg">Pega tus datos y haz clic en <strong>Procesar Datos</strong>.</td>
+                            <td colspan="12" class="empty-msg">Pega tus datos y haz clic en <strong>Procesar Datos</strong>.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </section>
-
+ 
         <!-- 3. ABAJO: PARA REPORTAR -->
         <section class="panel table-panel">
             <div class="panel-header">
@@ -108,7 +109,7 @@
                     <button class="btn btn-outline btn-sm" type="button" onclick="vaciarParaReportar()">Vaciar Para Reportar</button>
                 </div>
             </div>
-
+ 
             <div class="table-wrap">
                 <table id="tablaParaReportar">
                     <thead>
@@ -137,7 +138,7 @@
             </div>
         </section>
     </main>
-
+ 
     <div id="modalConfirmacion" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitulo" hidden>
         <div class="modal-card">
             <div class="modal-header">
@@ -151,9 +152,9 @@
             </div>
         </div>
     </div>
-
+ 
     <div id="toast" class="toast" aria-live="polite"></div>
-
+ 
     <script src="js/script.js"></script>
 </body>
 </html>
