@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Mañana</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main class="app">
+        <header class="topbar">
+            <div>
+                <h1>Automatización de Reportes</h1>
+                <p class="subtitle">Pega los datos del sistema, revisa desfases y anomalías, y envía a reporte lo que necesites.</p>
+            </div>
+            <div class="topbar-actions">
+                <button class="btn btn-danger" type="button" onclick="limpiarTodo()">Limpiar Todo</button>
+            </div>
+        </header>
+
+        <!-- 1. ARRIBA: SOLO PEGAR DATOS DEL SISTEMA -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2>1. Pegar datos del sistema</h2>
+                <span id="contadorFilas" class="pill">0 filas</span>
+            </div>
+            <textarea id="txtEntrada" placeholder="Pega aquí las filas desde Device ID..."></textarea>
+            <div class="btn-row">
+                <button class="btn btn-primary" type="button" onclick="procesarDatos()">Procesar Datos</button>
+                <button class="btn btn-outline" type="button" onclick="limpiarCajaEntrada()">Solo Limpiar Caja</button>
+            </div>
+        </section>
+
+        <!-- 2. EN MEDIO: RESULTADO DE DESFASES Y ESTADOS -->
+        <section class="panel table-panel">
+            <div class="panel-header">
+                <h2>2. Resultado de desfases y estados</h2>
+                <button class="btn btn-primary btn-sm" type="button" onclick="copiarColumnasCalculadas()">
+                    Copiar Columnas Calculadas para Excel
+                </button>
+            </div>
+
+            <div class="filtros-bar" aria-label="Filtros rápidos de resultados">
+                <span class="filtros-label">Filtrar:</span>
+                <button class="chip active" type="button" data-filtro="todos" onclick="toggleFiltro('todos')">Todos</button>
+                <button class="chip" type="button" data-filtro="aldia" onclick="toggleFiltro('aldia')">Solo Al día</button>
+                <button class="chip" type="button" data-filtro="ayer" onclick="toggleFiltro('ayer')">Solo Ayer</button>
+                <button class="chip" type="button" data-filtro="2dias" onclick="toggleFiltro('2dias')">Solo Hace 2 días</button>
+                <button class="chip" type="button" data-filtro="desfase" onclick="toggleFiltro('desfase')">Solo Con desfase</button>
+                <button class="chip" type="button" data-filtro="atrasados" onclick="toggleFiltro('atrasados')">No al día</button>
+                <button class="chip" type="button" data-filtro="anomalias" onclick="toggleFiltro('anomalias')">Solo anomalías</button>
+                <select id="filtroTipoAnomalia" class="select-filtro-anomalia" onchange="aplicarFiltrosYOrden()" title="Filtrar por tipo de anomalía">
+                    <option value="">Tipo de anomalía (Todas)</option>
+                    <option value="IP y Puerto No responden">IP y Puerto No responden</option>
+                    <option value="Puerto no responde">Puerto no responde</option>
+                    <option value="IP no responde">IP no responde</option>
+                    <option value="Medidor no responde">Medidor no responde</option>
+                </select>
+                <button class="btn btn-outline btn-sm" type="button" onclick="limpiarFiltros()">Limpiar filtros</button>
+            </div>
+
+            <div class="busqueda-lote">
+                <input
+                    id="filtroCodigos"
+                    type="text"
+                    class="input-filtro"
+                    placeholder="Buscar o pegar varios Device ID, Account No o IP (ej. Frt07239, Frt24265, 10168630)..."
+                    oninput="aplicarFiltrosYOrden()"
+                >
+                <button class="btn btn-outline btn-sm" type="button" onclick="limpiarFiltroCodigos()">Borrar búsqueda</button>
+            </div>
+
+            <div class="table-wrap">
+                <table id="tablaCalculos">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-sort="idx" onclick="ordenarPor('idx')"># <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="deviceId" onclick="ordenarPor('deviceId')">Device ID <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="accountNo" onclick="ordenarPor('accountNo')">Account No <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="descripcion" onclick="ordenarPor('descripcion')">Description <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="estado" onclick="ordenarPor('estado')">Estado Fecha <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="desfase" onclick="ordenarPor('desfase')">Desfase <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="original" onclick="ordenarPor('original')">Fecha/Hora Original <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="corregida" onclick="ordenarPor('corregida')">Fecha/Hora Corregida <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="ip" onclick="ordenarPor('ip')">IP <span class="sort-indicator"></span></th>
+                            <th class="sortable" data-sort="anomalia" onclick="ordenarPor('anomalia')">Anomalía <span class="sort-indicator"></span></th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="11" class="empty-msg">Pega tus datos y haz clic en <strong>Procesar Datos</strong>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. ABAJO: PARA REPORTAR -->
+        <section class="panel table-panel">
+            <div class="panel-header">
+                <div>
+                    <h2>3. Para reportar</h2>
+                    <span id="contadorReporte" class="pill pill-alert">0 en reporte</span>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-success btn-sm" type="button" onclick="copiarParaReportar()">Copiar Para Reportar para Excel</button>
+                    <button class="btn btn-outline btn-sm" type="button" onclick="vaciarParaReportar()">Vaciar Para Reportar</button>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table id="tablaParaReportar">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>No. Medidor</th>
+                            <th>Tipo Medidor</th>
+                            <th>Delegación</th>
+                            <th>Localidad</th>
+                            <th>Principal/Respaldo</th>
+                            <th>Last Read</th>
+                            <th>IP</th>
+                            <th>Phone</th>
+                            <th>Anomalía</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="13" class="empty-msg">Usa <strong>Enviar a reporte</strong> en los resultados para agregar medidores aquí.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div id="modalConfirmacion" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitulo" hidden>
+        <div class="modal-card">
+            <div class="modal-header">
+                <span id="modalBadge" class="modal-badge">Confirmación</span>
+                <h3 id="modalTitulo">Confirmar acción</h3>
+            </div>
+            <p id="modalMensaje" class="modal-mensaje"></p>
+            <div class="modal-actions">
+                <button id="btnCancelarModal" class="btn btn-outline" type="button">Cancelar</button>
+                <button id="btnConfirmarModal" class="btn btn-danger" type="button">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
